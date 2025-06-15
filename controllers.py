@@ -1,5 +1,5 @@
 from flask import flash, redirect
-from models import User, Todo
+from models import User, Todo, db
 from werkzeug.security import generate_password_hash
 
 def login_controller(request, render_template, check_password_hash, login_user, url_for):
