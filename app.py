@@ -5,6 +5,8 @@ from models import init_db, User, Todo, db
 from controllers import (login_controller, register_controller,
                          add_todo_controller, edit_todo_controller,
                          delete_todo_controller, toggle_todo_controller)
+from math import ceil
+from flask_paginate import Pagination, get_page_parameter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '123456'
@@ -51,14 +53,29 @@ def logout():
 @app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
+    # 1. Handle filter
     filter_status = request.args.get('filter', 'all')
-    todos = Todo.query.filter_by(user_id=current_user.id)
+    page = request.args.get('page', 1, type=int)
+    per_page = 7
+
+    # 2. Base query
+    todos_query = Todo.query.filter_by(user_id=current_user.id)
+
     if filter_status == 'completed':
-        todos = todos.filter(Todo.status == True)
+        todos_query = todos_query.filter(Todo.status == True)
     elif filter_status == 'active':
-        todos = todos.filter(Todo.status == False)
-    todos = todos.all()
-    return render_template('index.html', todos=todos, filter_status=filter_status)
+        todos_query = todos_query.filter(Todo.status == False)
+
+    # 3. Total count and paginate
+    total_todos = todos_query.count()
+    todos = todos_query.order_by(Todo.id.desc()).offset((page - 1) * per_page).limit(per_page).all()
+    total_pages = ceil(total_todos / per_page)
+
+    return render_template('index.html',
+                           todos=todos,
+                           filter_status=filter_status,
+                           page=page,
+                           pages=total_pages)
 
 @app.route('/add', methods=['POST'])
 @login_required

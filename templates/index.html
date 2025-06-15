@@ -1,39 +1,69 @@
 {% extends 'base.html' %}
 {% block title %}Todo List{% endblock %}
 {% block content %}
-<h2>Welcome, {{ current_user.username }}!</h2>
-<form method="POST" action="{{ url_for('add') }}" class="mb-4">
-    <div class="input-group">
-        <input type="text" class="form-control" name="title" placeholder="Add new task" required>
-        <button type="submit" class="btn btn-primary">Add</button>
+<h2 class="text-center mb-4" style="color: #ffffff; text-shadow: 1px 1px 3px rgba(0,0,0,0.2);">Welcome, {{ current_user.username }}!</h2>
+<div class="container">
+    <div class="card shadow-sm p-4 mb-4 bg-white rounded" style="background-color: rgba(255, 255, 255, 0.9);">
+        <form method="POST" action="{{ url_for('add') }}" class="mb-3">
+          <div class="row g-2">
+            <div class="col-12 col-md-9">
+              <input type="text" class="form-control" name="title" placeholder="Add new task" required>
+            </div>
+            <div class="col-12 col-md-3">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+          </div>
+        </form>
     </div>
-</form>
 
-<div class="mb-3">
-    <a href="{{ url_for('index', filter='all') }}" class="btn btn-outline-secondary {{ 'active' if filter_status == 'all' }}">All</a>
-    <a href="{{ url_for('index', filter='completed') }}" class="btn btn-outline-secondary {{ 'active' if filter_status == 'completed' }}">Completed</a>
-    <a href="{{ url_for('index', filter='active') }}" class="btn btn-outline-secondary {{ 'active' if filter_status == 'active' }}">Active</a>
+    <div class="mb-3">
+        <a href="{{ url_for('index', filter='all') }}" class="btn btn-outline-primary me-2 {{ 'active' if filter_status == 'all' }}"><i class="fas fa-list"></i> All</a>
+        <a href="{{ url_for('index', filter='completed') }}" class="btn btn-outline-success me-2 {{ 'active' if filter_status == 'completed' }}"><i class="fas fa-check"></i> Completed</a>
+        <a href="{{ url_for('index', filter='active') }}" class="btn btn-outline-warning {{ 'active' if filter_status == 'active' }}"><i class="fas fa-clock"></i> Active</a>
+    </div>
+
+    <div class="card shadow-sm p-3 bg-white rounded" style="background-color: rgba(255, 255, 255, 0.9);">
+        <ul class="list-group">
+            {% for todo in todos %}
+            <li class="list-group-item">
+              <div class="row align-items-center gy-2">
+                <div class="col-12 col-md-6">
+                  <form method="POST" action="{{ url_for('toggle', id=todo.id) }}" class="d-inline me-2">
+                    <input type="checkbox" onchange="this.form.submit()" {% if todo.status %}checked{% endif %}>
+                  </form>
+                  <span class="{{ 'completed-task' if todo.status }}">
+                    <i class="fas fa-tasks me-2" style="color: #007bff;"></i>
+                    {{ todo.title }}
+                  </span>
+                </div>
+                <div class="col-12 col-md-6 text-md-end">
+                  <form method="POST" action="{{ url_for('edit', id=todo.id) }}" class="d-inline me-2">
+                    <input type="text" name="title" value="{{ todo.title }}" class="form-control d-inline-block w-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
+                  </form>
+                  <form method="POST" action="{{ url_for('delete', id=todo.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                  </form>
+                </div>
+              </div>
+            </li>
+
+            {% endfor %}
+        </ul>
+    </div>
 </div>
-
-<ul class="list-group">
-    {% for todo in todos %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <form method="POST" action="{{ url_for('toggle', id=todo.id) }}" class="d-inline">
-                <input type="checkbox" onchange="this.form.submit()" {% if todo.status %}checked{% endif %}>
-            </form>
-            <span class="{{ 'text-decoration-line-through' if todo.status }}">{{ todo.title }}</span>
-        </div>
-        <div>
-            <form method="POST" action="{{ url_for('edit', id=todo.id) }}" class="d-inline">
-                <input type="text" name="title" value="{{ todo.title }}" class="form-control d-inline-block w-auto">
-                <button type="submit" class="btn btn-sm btn-outline-primary">Edit</button>
-            </form>
-            <form method="POST" action="{{ url_for('delete', id=todo.id) }}" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-            </form>
-        </div>
-    </li>
+{% if pages > 1 %}
+<nav aria-label="Pagination" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% for p in range(1, pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="{{ url_for('index', page=p, filter=filter_status) }}">{{ p }}</a>
+      </li>
     {% endfor %}
-</ul>
+  </ul>
+</nav>
+{% endif %}
+
 {% endblock %}
