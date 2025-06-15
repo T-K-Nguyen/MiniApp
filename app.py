@@ -7,23 +7,32 @@ from controllers import (login_controller, register_controller,
                          delete_todo_controller, toggle_todo_controller)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key' # Thay bằng key của bạn
+app.config['SECRET_KEY'] = '123456'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
 
 # Khởi tạo database
 db.init_app(app)
 with app.app_context():
     init_db()
+    # Thêm người dùng mẫu
+    from werkzeug.security import generate_password_hash
+    if not User.query.first():  # Chỉ thêm nếu chưa có người dùng
+        user = User(username='testuser', password=generate_password_hash('testpassword'))
+        db.session.add(user)
+        db.session.commit()
+        # Thêm công việc mẫu
+        todo = Todo(title='Sample Task', user_id=user.id)
+        db.session.add(todo)
+        db.session.commit()
 
 # Khởi tạo Flask-Login
 login_manager = LoginManager()
 login_manager.login_view = 'login'
-
-@login_manager.init_app(app)
+login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(User, int(user_id))
+    return User.query.get(int(user_id))
 
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -40,7 +49,7 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-@app.route('/', methods=['GET', 'GET'])
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     filter_status = request.args.get('filter', 'all')
