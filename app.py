@@ -15,7 +15,6 @@ db.init_app(app)
 with app.app_context():
     init_db()
     # Thêm người dùng mẫu
-    from werkzeug.security import generate_password_hash
     if not User.query.first():  # Chỉ thêm nếu chưa có người dùng
         user = User(username='user1', password=generate_password_hash('123'))
         db.session.add(user)

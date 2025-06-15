@@ -2,6 +2,7 @@ from flask import flash, redirect
 from models import User, Todo, db
 from werkzeug.security import generate_password_hash
 
+
 def login_controller(request, render_template, check_password_hash, login_user, url_for):
     if request.method == 'POST':
         username = request.form['username']
@@ -10,8 +11,9 @@ def login_controller(request, render_template, check_password_hash, login_user, 
         if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('index'))
-        flash('Invalid username or password')
+        flash('Invalid username or password')   # Trả về lỗi mật khẩu và người dùng không tồn tại/hợp lệ
     return render_template('login.html')
+
 
 def register_controller(request, render_template, generate_password_hash, url_for):
     if request.method == 'POST':
@@ -28,6 +30,7 @@ def register_controller(request, render_template, generate_password_hash, url_fo
             return redirect(url_for('login'))
     return render_template('register.html')
 
+
 def add_todo_controller(request, current_user, db, url_for):
     title = request.form['title']
     if title:
@@ -35,6 +38,7 @@ def add_todo_controller(request, current_user, db, url_for):
         db.session.add(new_todo)
         db.session.commit()
     return redirect(url_for('index'))
+
 
 def edit_todo_controller(request, id, db, current_user, url_for):
     todo = Todo.query.get_or_404(id)
@@ -47,6 +51,7 @@ def edit_todo_controller(request, id, db, current_user, url_for):
         db.session.commit()
     return redirect(url_for('index'))
 
+
 def delete_todo_controller(id, db, current_user, url_for):
     todo = Todo.query.get_or_404(id)
     if todo.user_id != current_user.id:
@@ -55,6 +60,7 @@ def delete_todo_controller(id, db, current_user, url_for):
     db.session.delete(todo)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 def toggle_todo_controller(id, db, current_user, url_for):
     todo = Todo.query.get_or_404(id)

@@ -1,7 +1,57 @@
 body {
-    background-color: #f8f9fa;
+    background-color: #f0f4f8;
+    font-family: 'Arial', sans-serif;
 }
+
 .list-group-item {
     border-radius: 0.5rem;
     margin-bottom: 0.5rem;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.list-group-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+}
+
+.completed-task {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    border-color: #ced4da;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.input-group .btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+@media (max-width: 768px) {
+    .list-group-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .d-inline-block {
+        width: 100% !important;
+        margin-bottom: 0.5rem;
+    }
 }
